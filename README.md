@@ -1,7 +1,7 @@
 Super Simple Shell - s3
 =======================
 
-S3 is attempts to simplify building shell applications with Python's cmd module.
+S3 attempts to simplify building shell applications with Python's cmd module.
 
 Requirements
 ------------
