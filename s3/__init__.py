@@ -97,13 +97,16 @@ class Shell(cmd.Cmd):
 
     def onecmd(self, args):
         if args:
+            raw = ' '.join(args[1:])
             if args[0] == 'help' and len(args) > 1:
                 args = args[1:]
                 command = getattr(self, 'help_{}'.format(args[0]), None)
                 if command:
                     print('\n{}\n'.format(command()))
                 return
+
             cmd, args, kwargs = self.parse_args(args)
+            kwargs.update({'raw': raw})
             command = getattr(self, 'do_{}'.format(cmd), None)
             if command:
                 try:
@@ -133,16 +136,16 @@ class Shell(cmd.Cmd):
 
         return []
 
-    def do_clear(self, *args):
+    def do_clear(self, *args, **kwargs):
         """clear the console"""
         os.system('clear')
 
-    def do_exit(self, *args):
+    def do_exit(self, *args, **kwargs):
         """exit the shell"""
         self.remove()
         return True
 
-    def do_quit(self, *args):
+    def do_quit(self, *args, **kwargs):
         """exit the shell"""
         self.remove()
         return True
