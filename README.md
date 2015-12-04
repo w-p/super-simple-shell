@@ -3,12 +3,11 @@ Super Simple Shell - s3
 
 S3 attempts to simplify building shell applications with Python's cmd module.
 
-Requirements
-------------
+## Requirements
+
 * python 3.4
 
-Installation
-------------
+## Installation
 
 `git clone https://github.com/w-p/super-simple-shell.git`
 
@@ -16,9 +15,95 @@ Installation
 
 `pip install .`
 
-Overview
---------
+## Overview
 
+### Creating a command line application
+* subclass s3.ArgShell
+* give it some arguments
+* instantiate it
+* access the resulting arguments
+
+### Adding Arguments
+Arguments are provided in the form of a dictionary where the key is the argument name and the value is another dictionary populated with the argument's configuration. So:
+
+    args = {
+        'myfirstarg': {
+            'help': 'no short or long set, call me with -m or --myfirstarg',
+            'default': 'foo'
+        },
+        'mysecondarg': {
+            'short': 'a',
+            'long': 'my-second-arg',
+            'help': 'short and long set, call me with -a or --my-second-arg',
+            'default': 'bar'
+        },
+        'myswitch': {
+            'short': 's',
+            'toggle': True,
+            'help': 'only short is set, call me with -s or --myswitch',
+            'default': False
+        }
+    }
+
+Command line switches are generated from the name of the argument using the first letter of the key and the key itself. The optional `short` and `long` values are used only when defined. This helps avoid argument name conflicts.
+
+### Usage Example
+
+    #! /usr/bin/env python3
+    import s3
+    from datetime import datetime
+
+    class Simple(s3.ArgShell):
+        description = 'A simple command-line application'
+        args = {
+            'hello': {'short': 'H', 'help': 'Say hello', 'default': 'John Doe'},
+            'greet': {'toggle': True, 'help': 'Print a greeting'}
+        }
+
+        def hello(self, value):
+            print('Hello, {}.'.format(value))
+
+        def greet(self):
+            now = datetime.now()
+            time = now.strftime('%H:%M')
+            phase = 'evening'
+            if now.hour < 12:
+                phase = 'morning'
+            elif now.hour < 18:
+                phase = 'afternoon'
+            print('Good {}, the time is {}'.format(phase, time))
+
+
+    if __name__ == '__main__':
+        cmd = Simple()
+        if cmd.arguments.hello:
+            cmd.hello(cmd.arguments.hello)
+        if cmd.arguments.greet:
+            cmd.greet()
+
+For the above, save it (as 'simple'), chmod it, and run it. You'll see:
+
+    $ ./simple
+    Hello, John Doe.
+
+To see what you can do:
+
+    $ ./simple --help
+    usage: A simple command-line application [-h] [-g] [-H HELLO]
+
+    optional arguments:
+      -h, --help            show this help message and exit
+      -g, --greet           Print a greeting
+      -H HELLO, --hello HELLO
+                            Say hello
+
+To use it:
+
+    $ ./simple --hello $USER -g
+    Hello, will.
+    Good morning, the time is 09:39
+
+_____
 ### Creating a shell
 * subclass `s3.Shell`
 * give it something to do
@@ -54,10 +139,10 @@ To clarify:
 * A function of `tab_something` exposes `help <tab><tab>` functionality.
 * Help functions should return a string. Printing is handled by s3.
 
-Usage Example
--------------
+### Usage Example
 
 
+    #! /usr/bin/env python3
     import s3
 
     class Simple(s3.Shell):

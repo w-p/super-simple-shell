@@ -19,12 +19,15 @@
 
 import logging
 import os
+import re
 import sys
 import cmd
 import shlex
 import signal
 import inspect
 import readline
+import argparse
+import subprocess
 
 
 readline.set_completer_delims(' ')
@@ -36,6 +39,44 @@ logger.setLevel(logging.DEBUG)
 stream_handler = logging.StreamHandler()
 stream_handler.setFormatter(logging.Formatter('[shell] %(message)s'))
 logger.addHandler(stream_handler)
+
+
+class ArgShell(object):
+    description = 'A basic console application'
+    args = {
+        # 'name': {
+        #     'short': 's',
+        #     'long': 'switch'
+        #     'toggle': False
+        #     'help': 'switch help string',
+        #     'default': 'foo, unless specified'
+        # }
+    }
+    def __init__(self):
+        parser = argparse.ArgumentParser(
+            self.description
+        )
+        for name, config in self.args.items():
+            short = '-{}'.format(
+                config.get('short', name[0])
+            )
+            long = '--{}'.format(
+                config.get('long', name)
+            )
+            toggle = config.get('toggle', False)
+            helpstr = config.get('help')
+            default = config.get('default', None)
+            action = 'store_true' if toggle else 'store'
+
+            parser.add_argument(
+                short,
+                long,
+                dest=name,
+                help=helpstr,
+                action=action,
+                default=default
+            )
+        self.arguments = parser.parse_args()
 
 
 class Shell(cmd.Cmd):
