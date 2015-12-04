@@ -61,7 +61,7 @@ class ArgShell(object):
                 config.get('short', name[0])
             )
             long = '--{}'.format(
-                config.get('long', name)
+                config.get('long', name.replace('_', '-'))
             )
             toggle = config.get('toggle', False)
             helpstr = config.get('help')
